@@ -17,7 +17,6 @@ const loadMoreBtn = document.querySelector('.load-more');
 let query;
 let page = 1;
 const perPage = 15; // Added this so that i can dynamically change per_page query
-let prevQuery = '';
 
 form.addEventListener('submit', e => {
   e.preventDefault();
@@ -28,24 +27,25 @@ form.addEventListener('submit', e => {
 
   query = e.target.elements['search-text'].value.trim();
 
+  if (!query) return;
+
+  page = 1;
+
   showImages(query);
 });
 
 loadMoreBtn.addEventListener('click', e => {
   hideLoadMoreButton();
 
+  page++;
+
   showImages(query);
+
+  scrollView();
 });
 
 async function showImages(query) {
-  if (!query) return;
-
   showLoader();
-
-  if (prevQuery !== query) {
-    page = 1;
-    prevQuery = query;
-  }
 
   try {
     const data = await getImagesByQuery(query, page, perPage);
@@ -76,10 +76,6 @@ async function showImages(query) {
         position: 'topRight',
       });
     }
-
-    page++;
-
-    scrollView();
   } catch (err) {
     console.error(err);
   } finally {
